@@ -36,8 +36,7 @@ public class LibraryService {
     public RequestIdDto readBook (Long id) { // pk 값으로 조회하는 api => name, isbn 반환
         Optional<Book> book = bookRepository.findById(id);
         if (book.isPresent()) {
-            // Book 객체를 EntityToDTO 전달하여 BookDTO로 변환
-            //  return EntityToDTO(book.get());
+            // builder => 객체 생성해서 그대로 반환
             return RequestIdDto.builder()
                     .name(book.get().getName())
                     .isbn(book.get().getIsbn())
@@ -45,22 +44,20 @@ public class LibraryService {
         }
         throw new EntityNotFoundException("Can't find any book under given ID");
     }
-    
-    // DB의 모든 책을 조회해서 Entity로 반환 => DTO로 변환해서 다시 반환
+
     public List<RequestIdDto> readBooks() {
-          // return bookRepository.findAll();
         // 모르겠다...
+        // 빌더패턴 사용하게 되면 내가 필요한 값들만 반환 해 줄 수 있음
+        // 빌더패턴 사용하면 생성자 매개변수 순서와 상관이 없다! (String name, String isbn) 이어도 isbn, name 순으로 줄 수 있음
         List<Book> books = bookRepository.findAll();
-        List<RequestIdDto> bookDTOS = books
+        List<RequestIdDto> bookDTO = books
                 .stream()
-//                .map(BookDTO::new)
-//                .collect(Collectors.toList());
-                .map(book -> RequestIdDto.builder() // -> 빌더패턴을 사용하게되면 내가 필요한 값들만 반환 해 줄 수 있다.
-                        .name(book.getName()) // 또한 빌더패턴을 사용하면 생성자 매개변수 순서와 상관이 없다! (String name, String isbn) 이어도 isbn, name 순으로 줄 수 있다.
+                .map(book -> RequestIdDto.builder() // 스트림 내의 값 변환하여 새로운 스트림 생성 (빌더 호출해서 Book 객체 -> RequestIdDto로 변환 !!)
+                        .name(book.getName())
                         .isbn(book.getIsbn())
                         .build())
-                .collect(Collectors.toList());
-        return bookDTOS;
+                .collect(Collectors.toList()); // 스트림 요소들을 원하는 결과 형태로 수집
+        return bookDTO;
     }
 
     public RequestIsbnDto readBook (String isbn) { // isbn으로 조회하는 api => id, name 반환

@@ -6,11 +6,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-// @Builder => 빌더가 생성하는 매개변수 생성자는 private으로 설정돼서 외부 패키지에서 접근 X
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
+//@AllArgsConstructor
 public class RequestIdDto {
+    private Long id;
     private String name;
     private String isbn;
+
+    @Builder
+    public RequestIdDto(Long id, String name, String isbn) {
+        this.id = id;
+        this.name = name;
+        this.isbn = isbn;
+    }
 }
